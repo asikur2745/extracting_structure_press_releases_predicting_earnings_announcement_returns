@@ -137,43 +137,45 @@ graph TD
     A[Start] --> B(Task 1: Validate Inputs);
     B --> C(Task 2: Filter Sample);
     C --> D(Task 3: Clean Text);
-    D --> E(Task 4: Vectorize BKMX);
-    D --> F(Task 5: Vectorize oLDA);
-    D --> G(Task 6: Vectorize Transformers);
-    subgraph Feature Engineering
-        E; F; G;
+
+    subgraph SG_FE [Feature Engineering]
+        D --> E(Task 4: Vectorize BKMX);
+        D --> F(Task 5: Vectorize oLDA);
+        D --> G(Task 6: Vectorize Transformers);
     end
-    G --> H(Task 7: Estimate Soft Scores);
-    H --> I(Task 8: Prepare Final Signals);
-    I --> J(Task 9: Baseline Regressions);
-    J --> K(Task 10: Combined Regressions);
-    J --> L(Task 11: SHAP Importance);
-    subgraph Modeling & Evaluation
-        H; I; J; K; L;
+
+    subgraph SG_ME [Modeling & Evaluation]
+        G --> H(Task 7: Estimate Soft Scores);
+        H --> I(Task 8: Prepare Final Signals);
+        I --> J(Task 9: Baseline Regressions);
+        J --> K(Task 10: Combined Regressions);
+        J --> L(Task 11: SHAP Importance);
     end
-    F --> M(Task 12: Label Topics);
-    M --> N(Task 13: Create Metatopics);
-    G --> O(Task 14: Extract Influential Tokens);
-    O & N --> P(Task 15: Classify Tokens);
-    H & N --> Q(Task 16: oLDA Analytics);
-    P --> R(Task 17: Token Polarity Analysis);
-    subgraph Interpretability
-        M; N; O; P; Q; R;
+
+    subgraph SG_I [Interpretability]
+        F --> M(Task 12: Label Topics);
+        M --> N(Task 13: Create Metatopics);
+        G --> O(Task 14: Extract Influential Tokens);
+        O & N --> P(Task 15: Classify Tokens);
+        H & N --> Q(Task 16: oLDA Analytics);
+        P --> R(Task 17: Token Polarity Analysis);
     end
-    I --> S(Task 18 & 19: Market Efficiency Sim);
-    I --> T(Task 20 & 21: Hacking Scenario Sim);
-    subgraph Simulations
-        S; T;
+
+    subgraph SG_S [Simulations]
+        I --> S(Task 18 & 19: Market Efficiency Sim);
+        I --> T(Task 20 & 21: Hacking Scenario Sim);
     end
+
     J & L & S & T --> U(Task 23: Final Validation);
     C & G & I --> V(Task 22: Diagnostics);
     V --> U;
     U --> W[End: Final Report];
 
-    style Feature Engineering fill:#e6f2ff,stroke:#333,stroke-width:2px
-    style Modeling & Evaluation fill:#d9ead3,stroke:#333,stroke-width:2px
-    style Interpretability fill:#fff2cc,stroke:#333,stroke-width:2px
-    style Simulations fill:#f4cccc,stroke:#333,stroke-width:2px
+    %% Style Definitions for Subgraphs
+    style SG_FE fill:#e6f2ff,stroke:#333,stroke-width:2px
+    style SG_ME fill:#d9ead3,stroke:#333,stroke-width:2px
+    style SG_I fill:#fff2cc,stroke:#333,stroke-width:2px
+    style SG_S fill:#f4cccc,stroke:#333,stroke-width:2px
 ```
 
 ## Prerequisites
