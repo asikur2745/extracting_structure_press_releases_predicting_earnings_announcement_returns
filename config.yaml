@@ -1,0 +1,366 @@
+﻿# ==============================================================================
+# Fused High-Fidelity Input Configuration for the Study
+#
+# This YAML file contains all non-data-structure parameters required to run the
+# full analysis pipeline for the paper "Extracting the Structure of Press
+# Releases for Predicting Earnings Announcement Returns".
+# ==============================================================================
+
+study_config:
+  # ----------------------------------------------------------------------
+  # Section 1.1: Data Acquisition and Filtering Parameters
+  # ----------------------------------------------------------------------
+  data_params:
+    start_date: "2005-01-01"
+    end_date: "2023-12-31"
+    timezone: "America/New_York"
+    after_hours_filter: true
+    accepted_form_types: ["8-K", "8-K/A"]
+    accepted_exhibit_prefixes: ["99."]
+    forecast_window_days: 90
+    min_document_chars: 100
+    max_document_chars: 1000000
+    price_adjustments: "CRSP_adjusted"
+    duplicate_event_resolution: "dedupe_by_[permno,pr_timestamp_et,pr_exhibit_id]_keep_latest_filing"
+    require_analyst_coverage: true
+    allow_regular_hours: false
+    keep_language: ["en", "en-US"]
+    missing_timestamp_policy: "fallback_to_filing_timestamp"
+
+  # ----------------------------------------------------------------------
+  # Section 1.2: Linking Parameters (Identifiers and Bridges)
+  # ----------------------------------------------------------------------
+  linking_params:
+    id_precedence: ["permno", "cik", "cusip8", "ticker"]
+    ibes_link_table_version: "latest_available"
+    ticker_history_handling: "use_event_time_symbol"
+    dual_class_resolution: "prefer_primary_share_class_by_shares_outstanding"
+    corporate_actions_source: "CRSP"
+
+  # ----------------------------------------------------------------------
+  # Section 1.3: Text Cleaning and Provenance Parameters
+  # ----------------------------------------------------------------------
+  text_cleaning_params:
+    remove_html_tables: true
+    strip_boilerplate_sections:
+      forward_looking_statements: true
+      non_gaap_disclosures: true
+      contacts_and_ir_headers: true
+      exhibit_headers_numbers: true
+    remove_patterns:
+      urls: true
+      emails: true
+      phone_numbers: true
+      standalone_numbers: true
+      repeated_headers: true
+    normalization:
+      whitespace_collapse: true
+      unicode_normalize: "NFKC"
+      lowercase: true
+    token_processing_bow_only:
+      lemmatize: true
+      stopwords_list: "english_default"
+      remove_repeated_patterns: true
+    language_detection:
+      enforce_language: true
+      threshold: 0.8
+    cleaning_audit_log: true
+
+  # ----------------------------------------------------------------------
+  # Section 1.4: Vectorization Parameters (BKMX, oLDA, Transformers)
+  # ----------------------------------------------------------------------
+  vectorization_params:
+    bkxmx:
+      taxonomy_resource_path: "path/to/BKMX_taxonomy.json"
+      use_bkxmx: true
+      metatopics_selected:
+        - "Announcements"
+        - "Corporate Earnings"
+        - "Financial Intermediaries"
+        - "National Politics"
+        - "Science / Arts"
+        - "Economic Growth"
+        - "Financial Markets"
+        - "Industry"
+        - "International Relations"
+        - "Oil / Mining"
+        - "Technology"
+    bag_of_words_vectorizer:
+      analyzer: "word"
+      ngram_range: [1, 1]
+      min_df: 5
+      max_df: 0.9
+      binary: false
+      lowercase: true
+      vocabulary_policy: "fit_on_training_years_only"
+      random_seed: 42
+    olda:
+      num_topics: 50
+      learning_method: "online"
+      learning_offset: 10
+      decay: 0.7
+      doc_topic_prior: 1.0
+      topic_word_prior: 1.0
+      max_iter: 1000
+      evaluate_every: -1
+      random_seed: 42
+      rolling_protocol:
+        initial_train_year: 2005
+        score_years: [2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023]
+        train_on_year: "t"
+        score_on_year: "t+1"
+        fit_vectorizer_on_train_only: true
+    transformers:
+      model_names:
+        bert: "bert-base-uncased"
+        finbert: "ProsusAI/finbert"
+        mpnet: "microsoft/mpnet-base"
+      model_revision: "default"
+      device: "auto"
+      batch_size: 16
+      max_token_length: 512
+      truncation_policy: "head"
+      pooling: "mean_last"
+      use_last_hidden_state: true
+      normalize_embeddings: false
+      fine_tuning: false
+      tokenizer_fast: true
+      random_seed: 42
+
+  # ----------------------------------------------------------------------
+  # Section 1.5: Modeling and Rolling Estimation Parameters
+  # ----------------------------------------------------------------------
+  modeling_params:
+    lasso:
+      lambda: 0.00001
+      fit_intercept: true
+      standardize_X: true
+      standardize_y: false
+      solver: "cd"
+      max_iter: 10000
+      tol: 0.000001
+      random_seed: 42
+    rolling_estimation:
+      initial_train_year: 2005
+      score_years: [2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023]
+      partition_key: "calendar_year(pr_timestamp_et)"
+      guard_lookahead: true
+      recompute_per_model: true
+    soft_signal_aggregation:
+      models_included: ["bkxmx", "olda", "bert", "mpnet", "finbert"]
+      aggregation: "simple_mean"
+      output_field: "soft_mean"
+
+  # ----------------------------------------------------------------------
+  # Section 1.6: Regression and Inference Parameters
+  # ----------------------------------------------------------------------
+  regression_params:
+    baseline_spec: "Ret ~ Surprise + Soft"
+    combined_spec: "Ret ~ Surprise + Soft_BKMX + Soft_oLDA + Soft_BERT + Soft_MPNET + Soft_FinBERT"
+    winsorize_surprise_quantiles: [0.01, 0.99]
+    cluster_standard_errors:
+      two_way: true
+      cluster_by: ["permno", "ann_trade_date"]
+    intercept: true
+    robust_covariance: "HC1"
+    software_engine: "statsmodels_OLS"
+    sample_period: ["2006-01-01", "2023-12-31"]
+
+  # ----------------------------------------------------------------------
+  # Section 1.7: SHAP (Attribution) Parameters
+  # ----------------------------------------------------------------------
+  shap_params:
+    method: "exact"
+    background_set: "training_year_samples"
+    aggregation: "mean_absolute"
+    report_normalized_percent: true
+
+  # ----------------------------------------------------------------------
+  # Section 1.8: Interpretability (LLM) Parameters and Prompts
+  # ----------------------------------------------------------------------
+  interpretability_params:
+    llm:
+      model_identifier: "gpt-4o-2024-08-06"
+      temperature: 0.0
+      top_p: 1.0
+      frequency_penalty: 0.0
+      presence_penalty: 0.0
+      response_format: {type: "json_object"}
+      request_timeout_seconds: 60
+      max_retries: 3
+      rate_limit_rps: 1
+      caching: true
+      audit_logging: true
+    chunking:
+      token_chunk_size_for_categorization: 500
+      topic_batch_size: 10
+    prompts:
+      topic_labeler_system_prompt: |
+        You are a senior financial NLP annotator. Your task: label oLDA topics derived from earnings press releases.
+        Requirements:
+        - Domain: public-company earnings press releases and after-hours filings.
+        - Output strictly JSON; no prose outside JSON.
+        - Labels must be short, specific, and unambiguous (3–6 words).
+        - Do not invent topics; only label the provided topics.
+        - If a topic is incoherent, use label "Incoherent/Other".
+      topic_labeler_user_prompt: |
+        You are given oLDA topics with top tokens (10 tokens per topic). Label each topic concisely and return JSON only.
+
+        Input schema (example):
+        {
+          "topics": [
+            {"topic_id": 0, "top_tokens": ["revenue", "quarter", "sales", "growth", "eps", "guidance", "margin", "yoy", "q4", "outlook"]},
+            {"topic_id": 1, "top_tokens": ["impairment", "restructuring", "charges", "one-time", "non-cash", "write-down", "adjusted", "gaap", "non-gaap", "ex-items"]}
+          ]
+        }
+
+        Task:
+        - Provide one short label per topic.
+        - Add an optional one-sentence definition to clarify scope.
+
+        Return JSON only with this schema:
+        {
+          "labeled_topics": [
+            {"topic_id": <int>, "topic_label": "<short label>", "definition": "<one sentence>"}
+          ]
+        }
+
+        Here are the topics to label:
+        {topics_json}
+      metatopic_condenser_system_prompt: |
+        You are a senior financial NLP taxonomist. Your task: condense labeled oLDA topics into a small, coherent set of metatopics for earnings press releases.
+
+        Constraints:
+        - Output strictly JSON; no extra prose.
+        - Create exactly {n_metatopics} metatopics (e.g., 9 or 10), each with:
+          - metatopic_id: "M01", "M02", ..., zero-padded and stable.
+          - metatopic_label: short, specific, non-overlapping.
+          - definition: 1–2 sentences.
+          - topic_ids: list of topic_id integers drawn from the input.
+        - Every topic_id must appear in exactly one metatopic.
+        - Avoid redundancy; ensure mutual exclusivity of metatopics.
+      metatopic_condenser_user_prompt: |
+        You are given previously labeled topics. Group them into exactly {n_metatopics} metatopics.
+
+        Input schema (example):
+        {
+          "labeled_topics": [
+            {"topic_id": 0, "topic_label": "Quarterly sales and EPS", "definition": "Revenue, EPS, and guidance in quarterly reports."},
+            {"topic_id": 1, "topic_label": "Restructuring/impairment items", "definition": "Charges, write-downs, and non-cash adjustments."}
+          ]
+        }
+
+        Return JSON only with this schema:
+        {
+          "metatopics": [
+            {
+              "metatopic_id": "M01",
+              "metatopic_label": "<short label>",
+              "definition": "<1–2 sentences>",
+              "topic_ids": [<int>, <int>, ...]
+            }
+          ]
+        }
+
+        Here are the labeled topics to condense:
+        {labeled_topics_json}
+      token_classifier_system_prompt: |
+        You are a senior financial NLP classifier. Your task: assign influential tokens from earnings press releases to an existing metatopic taxonomy derived from oLDA.
+
+        Constraints:
+        - Output strictly JSON; no extra prose.
+        - Use only the provided metatopics. If a token does not fit any metatopic, assign "Other".
+        - Treat tokens as standalone lexical items (no need to reconstruct wordpieces).
+        - Preserve the input token text verbatim in the output.
+      token_classifier_user_prompt: |
+        Classify each token into exactly one metatopic from the provided taxonomy.
+
+        Metatopics (input):
+        {metatopics_json}
+
+        Tokens to classify (chunked; keep chunks ≲ 500 tokens):
+        {
+          "tokens": [
+            {"token": "revenue", "polarity": "positive"},
+            {"token": "impairment", "polarity": "negative"},
+            {"token": "guidance", "polarity": "positive"}
+          ]
+        }
+
+        Return JSON only with this schema:
+        {
+          "classified_tokens": [
+            {"token": "<string>", "metatopic_id": "<Mxx | Other>", "polarity": "<positive|negative|unknown>"}
+          ]
+        }
+
+        Here is the current token chunk to classify:
+        {tokens_chunk_json}
+    taxonomy_policy:
+      taxonomy_source: "oLDA_derived"
+      metatopic_count: 9
+      enforce_mutual_exclusivity: true
+      allow_other_bucket: true
+
+  # ----------------------------------------------------------------------
+  # Section 1.9: Trading Simulation Parameters (Market Efficiency Test)
+  # ----------------------------------------------------------------------
+  trading_simulation_params:
+    entry_time_et: "09:45:00"
+    exit_time_et: "16:00:00"
+    use_nbbo: true
+    quote_validation_rules:
+      exclude_locked: true
+      exclude_crossed: true
+      valid_conditions_only: true
+    max_relative_spread_entry: 0.20
+    require_signal_agreement: true
+    ranking_method: "surprise"
+    portfolio_weighting: "market_cap_t_minus_1"
+    position_count_policy: "min(|L|,|S|)"
+    allow_shorting: true
+    strategies: ["OC1_close_price_exit", "OC2_quote_to_quote"]
+    min_names_per_side: 1
+    taq_timezone: "America/New_York"
+    taq_timestamp_tolerance_seconds: 5
+    slippage_model: "none"
+
+  # ----------------------------------------------------------------------
+  # Section 1.10: Hacking Scenario Parameters (Precision@k)
+  # ----------------------------------------------------------------------
+  hacking_simulation_params:
+    min_daily_announcements: 20
+    precision_at_k_values: [1, 2, 3, 5, 10]
+    evaluate_sides: ["winners", "losers"]
+    agreement_required: true
+    tie_breaker: ["market_cap_t_minus_1", "permno"]
+
+  # ----------------------------------------------------------------------
+  # Section 1.11: Factor Data Parameters
+  # ----------------------------------------------------------------------
+  factors_params:
+    ff3_source: "Ken_French_Data_Library (daily)"
+    merge_key: "ann_trade_date"
+    fill_policy: "strict"
+
+  # ----------------------------------------------------------------------
+  # Section 1.12: Diagnostics and Reproducibility
+  # ----------------------------------------------------------------------
+  diagnostics_params:
+    compute_embedding_cosine_stats: true
+    report_dataset_counts: true
+    double_sort_heatmap: true
+    random_state_global: 42
+
+  # ----------------------------------------------------------------------
+  # Section 1.13: Compliance and Model Cards
+  # ----------------------------------------------------------------------
+  compliance_params:
+    data_use_agreements_checked: true
+    pii_policy: "no_PII_expected"
+    model_card_versions:
+      bert: "bert-base-uncased"
+      finbert: "ProsusAI/finbert"
+      mpnet: "microsoft/mpnet-base"
+      gpt_4o: "gpt-4o-2024-08-06"
+    pretraining_cutoff_consideration: "prefer_pre-2020_encoders"
